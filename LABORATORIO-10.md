@@ -55,7 +55,8 @@ El responsable de un movimiento Kardex se obtiene del JWT comprobado por la API.
 - HeidiSQL: tablas `usuarios`, `productos` y `movimientos`, con contraseña almacenada como hash (ocultar datos sensibles).
 - Postman: registro 201, login 200 y token JWT (ocultar parte del token en capturas).
 - Postman: GET /api/productos sin token 401 y con Bearer 200.
-- Postman: POST, PUT, DELETE /api/productos con autorización (eliminar solamente productos sin Kardex).
+- Postman: POST y PUT /api/productos con autorización; DELETE requiere el token del **Administrador** (eliminar solamente productos sin Kardex).
+- Verificación RBAC: un usuario Almacenero recibe 403 si intenta DELETE.
 - Navegador React: login, crear, editar y eliminar un producto y registrar movimiento.
 - Evidencia adicional: token inválido 401 y control de acceso.
 
