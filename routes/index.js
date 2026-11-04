@@ -12,6 +12,8 @@ const payloadProducto = (body) => ({
 });
 
 module.exports = function registrarRutas(app) {
+  app.use('/ventas', require('./ventas'));
+
   // Control de acceso por roles: las bajas de catálogos y productos
   // corresponden exclusivamente al administrador autenticado.
   app.use((req, res, next) => {
