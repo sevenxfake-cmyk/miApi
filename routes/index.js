@@ -12,6 +12,15 @@ const payloadProducto = (body) => ({
 });
 
 module.exports = function registrarRutas(app) {
+  // Control de acceso por roles: las bajas de catálogos y productos
+  // corresponden exclusivamente al administrador autenticado.
+  app.use((req, res, next) => {
+    if (req.method === 'DELETE' && req.usuario?.rol !== 'Administrador') {
+      return res.status(403).json({ error: 'Solo el Administrador puede eliminar registros.' });
+    }
+    next();
+  });
+
   // CATEGORÍAS
   app.get('/categorias', asyncRoute(async (req, res) => res.json(await Categoria.findAll({ order: [['nombre', 'ASC']] }))));
   app.post('/categorias', asyncRoute(async (req, res) => {
