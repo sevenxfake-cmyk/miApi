@@ -122,10 +122,12 @@ module.exports = function registrarRutas(app) {
     }));
   }));
   app.post('/movimientos', asyncRoute(async (req, res) => {
-    const { producto_id, usuario_id, tipo_movimiento, cantidad, observaciones } = req.body;
+    const { producto_id, tipo_movimiento, cantidad, observaciones } = req.body;
+    // El usuario responsable proviene del JWT verificado, nunca del body.
+    const usuario_id = req.usuario.id;
     const tipos = ['Entrada', 'Salida', 'Ajuste'];
     const cantidadValida = Number.isInteger(Number(cantidad)) && Number(cantidad) >= 0 && cantidad !== '';
-    if (!entero(producto_id) || !entero(usuario_id) || !tipos.includes(tipo_movimiento) ||
+    if (!entero(producto_id) || !tipos.includes(tipo_movimiento) ||
         !cantidadValida || (tipo_movimiento !== 'Ajuste' && Number(cantidad) === 0)) {
       return res.status(400).json({ error: 'Movimiento inválido: revisa producto, usuario, tipo y cantidad' });
     }
