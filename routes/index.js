@@ -12,6 +12,15 @@ const payloadProducto = (body) => ({
 });
 
 module.exports = function registrarRutas(app) {
+  // Control de acceso por roles: las bajas de catálogos y productos
+  // corresponden exclusivamente al administrador autenticado.
+  app.use((req, res, next) => {
+    if (req.method === 'DELETE' && req.usuario?.rol !== 'Administrador') {
+      return res.status(403).json({ error: 'Solo el Administrador puede eliminar registros.' });
+    }
+    next();
+  });
+
   // CATEGORÍAS
   app.get('/categorias', asyncRoute(async (req, res) => res.json(await Categoria.findAll({ order: [['nombre', 'ASC']] }))));
   app.post('/categorias', asyncRoute(async (req, res) => {
@@ -122,10 +131,12 @@ module.exports = function registrarRutas(app) {
     }));
   }));
   app.post('/movimientos', asyncRoute(async (req, res) => {
-    const { producto_id, usuario_id, tipo_movimiento, cantidad, observaciones } = req.body;
+    const { producto_id, tipo_movimiento, cantidad, observaciones } = req.body;
+    // El usuario responsable proviene del JWT verificado, nunca del body.
+    const usuario_id = req.usuario.id;
     const tipos = ['Entrada', 'Salida', 'Ajuste'];
     const cantidadValida = Number.isInteger(Number(cantidad)) && Number(cantidad) >= 0 && cantidad !== '';
-    if (!entero(producto_id) || !entero(usuario_id) || !tipos.includes(tipo_movimiento) ||
+    if (!entero(producto_id) || !tipos.includes(tipo_movimiento) ||
         !cantidadValida || (tipo_movimiento !== 'Ajuste' && Number(cantidad) === 0)) {
       return res.status(400).json({ error: 'Movimiento inválido: revisa producto, usuario, tipo y cantidad' });
     }
